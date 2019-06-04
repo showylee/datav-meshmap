@@ -1,0 +1,447 @@
+{
+  "name": "@namespace/meshmap",
+  "version": "0.0.1",
+  "dependencies": {
+    "bcore": "0.0.18",
+    "jquery": "2.1.4",
+    "lodash": "4.6.1",
+    "echarts": "4.2.1",
+    "zrender": "3.4.4"
+  },
+  "datav": {
+    "cn_name": "meshmap",
+    "icon": "//img.alicdn.com/tfs/TB1SN.OdwoQMeJjy0FpXXcTxpXa-400-284.png",
+    "protocol": 2,
+    "type": [
+      "regular"
+    ],
+    "view": {
+      "width": "1200",
+      "height": "600",
+      "minWidth": "400",
+      "minHeight": "200"
+    },
+    "apis": {
+      "source": {
+        "handler": "render",
+        "description": "インタフェースの説明",
+        "fields": {
+          "value": {
+            "description": "kind of tile"
+          },
+          "land": {
+            "description": "land",
+            "optional": true
+          },
+          "long": {
+            "description": "longitude",
+            "optional": true
+          }
+        }
+      }
+    },
+    "config": {
+      "tooltip": {
+        "name": "tooltip",
+        "type": "group",
+        "children": {
+          "show": {
+            "name": "show",
+            "type": "boolean",
+            "default": true
+          },
+          "trigger": {
+            "name": "trigger",
+            "type": "text",
+            "default": "item"
+          }
+        }
+      },
+      "visualMap": {
+        "name": "visualMap",
+        "type": "group",
+        "children": {
+          "type": {
+            "name": "type",
+            "type": "text",
+            "default": "piecewise"
+          },
+          "inverse": {
+            "name": "inverse",
+            "type": "boolean",
+            "default": true
+          },
+          "top": {
+            "name": "top",
+            "type": "number",
+            "default": 10
+          },
+          "left": {
+            "name": "left",
+            "type": "number",
+            "default": 10
+          },
+          "pieces": {
+            "name": "pieces",
+            "type": "array",
+            "default": [
+              {
+                "value": 0,
+                "color": "#070093"
+              },
+              {
+                "value": 1,
+                "color": "#1c3fbf"
+              },
+              {
+                "value": 2,
+                "color": "#1482e5"
+              },
+              {
+                "value": 3,
+                "color": "#70b4eb"
+              },
+              {
+                "value": 4,
+                "color": "#b4e0f3"
+              },
+              {
+                "value": 5,
+                "color": "#ffffff"
+              }
+            ],
+            "child": {
+              "name": "child",
+              "type": "object",
+              "child": {
+                "value": {
+                  "name": "value",
+                  "type": "number",
+                  "default": 0
+                },
+                "color": {
+                  "name": "color",
+                  "type": "color",
+                  "default": "#ffffff"
+                }
+              }
+            }
+          },
+          "borderColor": {
+            "name": "borderColor",
+            "type": "color",
+            "default": "#ccc"
+          },
+          "borderWidth": {
+            "name": "borderWidth",
+            "type": "number",
+            "default": 2
+          },
+          "backgroundColor": {
+            "name": "backgroundColor",
+            "type": "color",
+            "default": "#eee"
+          },
+          "dimension": {
+            "name": "dimension",
+            "type": "number",
+            "default": 2
+          }
+        }
+      },
+      "series": {
+        "name": "series",
+        "type": "array",
+        "default": [
+          {
+            "type": "custom",
+            "coordinateSystem": "bmap",
+            "animation": false,
+            "itemStyle": {
+              "emphasis": {
+                "color": "yellow"
+              }
+            },
+            "encode": {
+              "tooltip": {
+                "default": 2
+              }
+            }
+          }
+        ],
+        "child": {
+          "name": "child",
+          "type": "object",
+          "child": {
+            "type": {
+              "name": "type",
+              "type": "text",
+              "default": "custom"
+            },
+            "coordinateSystem": {
+              "name": "coordinateSystem",
+              "type": "text",
+              "default": "geo"
+            },
+            "animation": {
+              "name": "animation",
+              "type": "boolean",
+              "default": true
+            },
+            "itemStyle": {
+              "name": "itemStyle",
+              "type": "group",
+              "children": {
+                "emphasis": {
+                  "name": "emphasis",
+                  "type": "group",
+                  "children": {
+                    "color": {
+                      "name": "color",
+                      "type": "color",
+                      "default": ""
+                    }
+                  }
+                }
+              }
+            },
+            "encode": {
+              "name": "encode",
+              "type": "group",
+              "children": {
+                "tooltip": {
+                  "name": "tooltip",
+                  "type": "number",
+                  "default": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "geo": {
+        "name": "geo",
+        "type": "group",
+        "children": {
+          "show": {
+            "name": "show",
+            "type": "boolean",
+            "default": true
+          },
+          "roam": {
+            "name": "roam",
+            "type": "boolean",
+            "default": true
+          },
+          "zoom": {
+            "name": "zoom",
+            "type": "number",
+            "default": 1
+          }
+        }
+      },
+      "bmap": {
+        "name": "bmap",
+        "type": "group",
+        "children": {
+          "zoom": {
+            "name": "zoom",
+            "type": "number",
+            "default": 11.8
+          },
+          "roam": {
+            "name": "roam",
+            "type": "boolean",
+            "default": true
+          },
+          "mapStyle": {
+            "name": "mapStyle",
+            "type": "group",
+            "children": {
+              "styleJson": {
+                "name": "styleJson",
+                "type": "array",
+                "default": [
+                  {
+                    "featureType": "water",
+                    "elementType": "all",
+                    "stylers": {
+                      "color": "#d1d1d1",
+                      "visibility": "on"
+                    }
+                  },
+                  {
+                    "featureType": "land",
+                    "elementType": "all",
+                    "stylers": {
+                      "color": "#f3f3f3",
+                      "visibility": "on"
+                    }
+                  },
+                  {
+                    "featureType": "railway",
+                    "elementType": "all",
+                    "stylers": {
+                      "color": "#d1d1d1",
+                      "visibility": "off"
+                    }
+                  },
+                  {
+                    "featureType": "highway",
+                    "elementType": "all",
+                    "stylers": {
+                      "color": "#999999",
+                      "visibility": "on"
+                    }
+                  },
+                  {
+                    "featureType": "highway",
+                    "elementType": "labels",
+                    "stylers": {
+                      "color": "#d1d1d1",
+                      "visibility": "off"
+                    }
+                  },
+                  {
+                    "featureType": "arterial",
+                    "elementType": "geometry",
+                    "stylers": {
+                      "color": "#fefefe",
+                      "visibility": "on"
+                    }
+                  },
+                  {
+                    "featureType": "arterial",
+                    "elementType": "geometry.fill",
+                    "stylers": {
+                      "color": "#fefefe",
+                      "visibility": "on"
+                    }
+                  },
+                  {
+                    "featureType": "poi",
+                    "elementType": "all",
+                    "stylers": {
+                      "color": "yellow",
+                      "visibility": "off"
+                    }
+                  },
+                  {
+                    "featureType": "green",
+                    "elementType": "all",
+                    "stylers": {
+                      "color": "green",
+                      "visibility": "off"
+                    }
+                  },
+                  {
+                    "featureType": "subway",
+                    "elementType": "all",
+                    "stylers": {
+                      "color": "#d1d1d1",
+                      "visibility": "off"
+                    }
+                  },
+                  {
+                    "featureType": "manmade",
+                    "elementType": "all",
+                    "stylers": {
+                      "color": "#d1d1d1",
+                      "visibility": "on"
+                    }
+                  },
+                  {
+                    "featureType": "local",
+                    "elementType": "all",
+                    "stylers": {
+                      "color": "#d1d1d1",
+                      "visibility": "on"
+                    }
+                  },
+                  {
+                    "featureType": "arterial",
+                    "elementType": "labels",
+                    "stylers": {
+                      "color": "#d1d1d1",
+                      "visibility": "off"
+                    }
+                  },
+                  {
+                    "featureType": "boundary",
+                    "elementType": "all",
+                    "stylers": {
+                      "color": "#fefefe",
+                      "visibility": "on"
+                    }
+                  },
+                  {
+                    "featureType": "building",
+                    "elementType": "all",
+                    "stylers": {
+                      "color": "#d1d1d1",
+                      "visibility": "on"
+                    }
+                  },
+                  {
+                    "featureType": "label",
+                    "elementType": "labels.text.fill",
+                    "stylers": {
+                      "color": "rgba(0,0,0,0)",
+                      "visibility": "on"
+                    }
+                  }
+                ],
+                "child": {
+                  "name": "child",
+                  "type": "object",
+                  "child": {
+                    "featureType": {
+                      "name": "featureType",
+                      "type": "text",
+                      "default": ""
+                    },
+                    "elementType": {
+                      "name": "elementType",
+                      "type": "text",
+                      "default": ""
+                    },
+                    "stylers": {
+                      "name": "stylers",
+                      "type": "group",
+                      "children": {
+                        "color": {
+                          "name": "color",
+                          "type": "color",
+                          "default": "#ffffff"
+                        },
+                        "visibility": {
+                          "name": "visibility",
+                          "type": "text",
+                          "default": "on"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "api_data": {
+      "source": [
+        {
+          "value": 0,
+          "long": 0,
+          "land": 5
+        },
+        {
+          "value": 1,
+          "long": 0,
+          "land": 5
+        }
+      ]
+    }
+  }
+}
