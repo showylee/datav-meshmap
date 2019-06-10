@@ -3,7 +3,10 @@ var $ = require('jquery');
 var _ = require('lodash');
 var EChart = require('echarts');
 var Utils = require('datav:/com/maliang-echarts-utils/0.0.18');
-//var BMap = require('echarts/extension/bmap/bmap.js');
+require('echarts/dist/extension/bmap');
+require('echarts/dist/extension/dataTool');
+const world = require('echarts/map/json/world.json');
+
 
 /**
  * 马良基础类
@@ -22,9 +25,32 @@ module.exports = Event.extend(function Base(container, config) {
    * 公有初始化
    */
   init: function (config) {
+     
     //1.初始化,合并配置
     this.mergeConfig(config);
+    //EChart.registerMap('world', world);
     this.chart = EChart.init(this.container[0]);
+
+    const key = "8BB7F0E5C9C77BD6B9B655DB928B74B6E2D838FD"; 
+    const src = "http://api.map.baidu.com/api?v=2.0&ak="+key+"&callback=onBMapCallback";
+    return new Promise((resolve, reject) => {
+      // 如果已加载直接返回
+      if(typeof BMap !== "undefined") {
+        resolve(BMap);
+        return true;
+      }
+      // 百度地图异步加载回调处理
+      window.onBMapCallback = function () {
+        console.log("百度地图脚本初始化成功...");
+        resolve(BMap);
+      };
+
+      const script = document.createElement("script");
+      script.setAttribute("type", "text/javascript");
+      script.setAttribute("src", src);
+      document.body.appendChild(script);
+    });
+
     console.log(Utils.config2echartsOptions(config));
     this.chart.setOption(Utils.config2echartsOptions(config));
     //2.刷新布局,针对有子组件的组件 可有可无
@@ -42,6 +68,7 @@ module.exports = Event.extend(function Base(container, config) {
    */
   render: function (data, config) {
     config = this.mergeConfig(config);
+    EChart.registerMap('world', world);
     data = this.data(data);
 //    var cfg = Utils.config2echartsOptions(this.mergeConfig(Utils.data2echartsAxis(data, config)));
 
@@ -158,6 +185,7 @@ module.exports = Event.extend(function Base(container, config) {
         this.config.series[i].type = 'custom';
       });
       this.config.series = _.take(this.config.series, config.series.length)
+      this.config.series.push({ type: 'map', map: 'world' });
     }
     if (config.bmap) {
       this.config.bmap.center = [116.46, 39.92];
