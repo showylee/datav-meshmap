@@ -40,9 +40,10 @@ module.exports = Event.extend(function Base(container, config) {
         return true;
       }
       // 百度地图异步加载回调处理
-      window.onBMapCallback = function () {
-        console.log("百度地图脚本初始化成功...");
+      window.onBMapCallback = () => {
         resolve(BMap);
+        console.log(Utils.config2echartsOptions(this.mergeConfig(config)));
+        this.chart.setOption(Utils.config2echartsOptions(config));
       };
 
       const script = document.createElement("script");
@@ -51,8 +52,6 @@ module.exports = Event.extend(function Base(container, config) {
       document.body.appendChild(script);
     });
 
-    console.log(Utils.config2echartsOptions(config));
-    this.chart.setOption(Utils.config2echartsOptions(config));
     //2.刷新布局,针对有子组件的组件 可有可无
     //this.updateLayout();
     //3.子组件实例化
@@ -68,11 +67,9 @@ module.exports = Event.extend(function Base(container, config) {
    */
   render: function (data, config) {
     config = this.mergeConfig(config);
-    EChart.registerMap('world', world);
     data = this.data(data);
-//    var cfg = Utils.config2echartsOptions(this.mergeConfig(Utils.data2echartsAxis(data, config)));
-
-//    this.chart.setOption(cfg);
+    //var cfg = Utils.config2echartsOptions(this.mergeConfig(config));
+    //this.chart.setOption(cfg);
     //更新图表
     //this.chart.render(data, cfg);
     //this.container.html(data[0].value)
@@ -129,48 +126,90 @@ module.exports = Event.extend(function Base(container, config) {
     if (config.series) {
       const obj = { 
         renderItem: function (params, api){
-          var lngExtent = [39.5, 40.6];
-          var latExtent = [115.9, 116.8];
-          var cellCount = [50, 50];
-          var cellSizeCoord = [
-              (lngExtent[1] - lngExtent[0]) / cellCount[0],
-              (latExtent[1] - latExtent[0]) / cellCount[1]
-          ];
+          var lngExtent = [20.0, 46.9];
+          var latExtent = [122.0, 153.9];
           var context = params.context;
-          var lngIndex = api.value(0);
-          var latIndex = api.value(1);
-          var coordLeftTop = [
-              +(latExtent[0] + lngIndex * cellSizeCoord[0]).toFixed(6),
-              +(lngExtent[0] + latIndex * cellSizeCoord[1]).toFixed(6)
-          ];
 
-          function getCoord(params, api, lngIndex, latIndex) {
-            var coords = params.context.coords || (params.context.coords = []);
-            var key = lngIndex + '-' + latIndex;
-        
-            // bmap returns point in integer, which makes cell width unstable.
-            // So we have to use right bottom point.
-            return coords[key] || (coords[key] = api.coord([
-                +(latExtent[0] + lngIndex * cellSizeCoord[0]).toFixed(6),
-                +(lngExtent[0] + latIndex * cellSizeCoord[1]).toFixed(6)
-            ]));
+          // get meshcode data
+          var meshcode = String(config.series[0].data[params.dataIndex].meshcode);
+
+          if (meshcode.length !== 8){
+            return true;
           }
-          var pointLeftTop = getCoord(params, api, lngIndex, latIndex);
-          var pointRightBottom = getCoord(params, api, lngIndex + 1, latIndex + 1);
+
+          const aryMesh = meshcode.match(/.{2}/g); 
+          const latCodes = [];
+          const lngCodes = [];
+          aryMesh.forEach((d, i) => {
+            if (i < 2) {
+              // primary mesh code.
+              if (i == 0) {
+                latCodes.push(Number(d));
+              }else{
+                lngCodes.push(Number(d));
+              }
+            }else{
+              // secondary and third order mesh code.
+              const tmp = d.match(/.{1}/g);
+              latCodes.push(Number(tmp[0]));
+              lngCodes.push(Number(tmp[1]));
+            }
+          });
+
+          function getCoord(params, api, meshcodes){
+            const latMesh = meshcodes[0];
+            const lngMesh = meshcodes[1];
+
+            var coords = params.context.coords || (params.context.coords = []);
+            let key = latMesh[1]+latMesh[2] + '-' + lngMesh[1] + lngMesh[2];
+            //let key = latMesh[2] + "-" + lngMesh[2];
+
+            const lat = (latMesh[0] / 1.5 * 3600 + latMesh[1] * 5 * 60 + latMesh[2] * 30 ) / 3600;
+            const lng = ((lngMesh[0] + 100) * 3600 + lngMesh[1] * 7.5 * 60 + lngMesh[2] * 45) / 3600;
+
+            return coords[key] || (coords[key] = api.coord([+lng, +lat]));
+          }
+
+          const codes = [latCodes, lngCodes];
+          const RightTopCodes = [[],[]];
+
+          const pointLeftBottom = getCoord(params, api, codes);
+
+          const prefix = 1;
+          codes.forEach((d, i) => {
+            // third order meshcode move up
+            if (d[2] == 9){
+              // secondary meshcode move up
+              if (d[1] == 7){
+                RightTopCodes[i].push(d[0] + prefix);
+                RightTopCodes[i].push(0);
+                RightTopCodes[i].push(0);
+              }else{
+                RightTopCodes[i].push(d[0]);
+                RightTopCodes[i].push(d[1] + prefix);
+                RightTopCodes[i].push(0);
+              }
+            }else{
+              RightTopCodes[i] = d;
+              RightTopCodes[i][2] = d[2] + prefix;
+            }
+          });
+          const pointRightTop = getCoord(params, api, RightTopCodes);
 
           return {
-              type: 'rect',
-              shape: {
-                  x: pointLeftTop[0],
-                  y: pointLeftTop[1],
-                  width: pointRightBottom[0] - pointLeftTop[0],
-                  height: pointRightBottom[1] - pointLeftTop[1]
-              },
-              style: api.style({
-                  stroke: 'rgba(0,0,0,0.1)'
-              }),
-              styleEmphasis: api.styleEmphasis()
-          };       
+            type: 'rect',
+            shape: {
+              x: pointLeftBottom[0],
+              y: pointLeftBottom[1],
+              width: pointRightTop[0] - pointLeftBottom[0],
+              height: pointRightTop[1] - pointLeftBottom[1]
+            },
+            style: api.style({
+                stroke: 'rgba(0,0,0,0.1)'
+            }),
+            styleEmphasis: api.styleEmphasis()
+          };
+
         }
       };
 
@@ -178,28 +217,25 @@ module.exports = Event.extend(function Base(container, config) {
         if (d.data) {
           this.config.series[i].data = d.data;
         }
-        //this.config.series[i].renderItem = this.renderItem();
         this.config.series[i] = obj; 
         
+        if (this._data){
+          this.config.series[i].data = this._data;
+        }
+
         this.config.series[i] = _.defaultsDeep(d || {}, this.config.series[i]);
         this.config.series[i].type = 'custom';
       });
       this.config.series = _.take(this.config.series, config.series.length)
-      this.config.series.push({ type: 'map', map: 'world' });
     }
     if (config.bmap) {
-      this.config.bmap.center = [116.46, 39.92];
-      //console.log(config.bmap.mapStyle.styleJson);
+      this.config.bmap.center = [139.44, 35.39];
       //var json = JSON.parse(JSON.stringify(config.bmap.mapStyle.styleJson));
-      //console.log(typeof(json));
       this.config.bmap.mapStyle = {};
     }
     if (config.visualMap) {
       this.config.visualMap.inRange.color = ["#070093", "#1c3fbf", "#1482e5", "#70b4eb", "#b4e0f3", "#ffffff"];
       this.config.visualMap.inRange.apacity = 0.7;
-    }
-    if (config.geo) {
-      this.config.geo.center = [116.46, 39.92];
     }
 
     this.config.theme = _.defaultsDeep(config.theme || {}, this.config.theme);

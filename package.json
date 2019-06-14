@@ -26,16 +26,11 @@
         "handler": "render",
         "description": "インタフェースの説明",
         "fields": {
+          "meshcode": {
+            "description": "meshcode"
+          },
           "value": {
             "description": "kind of tile"
-          },
-          "land": {
-            "description": "land",
-            "optional": true
-          },
-          "long": {
-            "description": "longitude",
-            "optional": true
           }
         }
       }
@@ -219,27 +214,6 @@
           }
         }
       },
-      "geo": {
-        "name": "geo",
-        "type": "group",
-        "children": {
-          "show": {
-            "name": "show",
-            "type": "boolean",
-            "default": true
-          },
-          "roam": {
-            "name": "roam",
-            "type": "boolean",
-            "default": true
-          },
-          "zoom": {
-            "name": "zoom",
-            "type": "number",
-            "default": 1
-          }
-        }
-      },
       "bmap": {
         "name": "bmap",
         "type": "group",
@@ -247,7 +221,7 @@
           "zoom": {
             "name": "zoom",
             "type": "number",
-            "default": 11.8
+            "default": 7
           },
           "roam": {
             "name": "roam",
@@ -432,14 +406,20 @@
     "api_data": {
       "source": [
         {
-          "value": 0,
-          "long": 0,
-          "land": 5
+          "meshcode": 53394509,
+          "value": 0
         },
         {
-          "value": 1,
-          "long": 0,
-          "land": 5
+          "meshcode": 53394518,
+          "value": 1
+        },
+        {
+          "meshcode": 53394519,
+          "value": 1
+        },
+        {
+          "meshcode": 53394528,
+          "value": 2
         }
       ]
     }
