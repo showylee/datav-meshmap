@@ -5,7 +5,6 @@ var EChart = require('echarts');
 var Utils = require('datav:/com/maliang-echarts-utils/0.0.18');
 require('echarts/dist/extension/bmap');
 require('echarts/dist/extension/dataTool');
-const world = require('echarts/map/json/world.json');
 
 
 /**
@@ -13,7 +12,9 @@ const world = require('echarts/map/json/world.json');
  */
 module.exports = Event.extend(function Base(container, config) {
   this.config = {
-    series: [], bmap: { center: [], mapStyle: {}}, geo: { center: [] }, visualMap: { inRange: { color: [], apacity: 0 } }
+    series: [],
+    bmap: { center: [], mapStyle: {} },
+    visualMap: { inRange: { color: [] } }
   }
   this.container = $(container);           //容器
   this.apis = config.apis;                 //hook一定要有
@@ -28,7 +29,6 @@ module.exports = Event.extend(function Base(container, config) {
      
     //1.初始化,合并配置
     this.mergeConfig(config);
-    //EChart.registerMap('world', world);
     this.chart = EChart.init(this.container[0]);
 
     const key = "8BB7F0E5C9C77BD6B9B655DB928B74B6E2D838FD"; 
@@ -42,8 +42,7 @@ module.exports = Event.extend(function Base(container, config) {
       // 百度地图异步加载回调处理
       window.onBMapCallback = () => {
         resolve(BMap);
-        console.log(Utils.config2echartsOptions(this.mergeConfig(config)));
-        this.chart.setOption(Utils.config2echartsOptions(config));
+        this.chart.setOption(Utils.config2echartsOptions(this.mergeConfig(config)));
       };
 
       const script = document.createElement("script");
@@ -68,8 +67,7 @@ module.exports = Event.extend(function Base(container, config) {
   render: function (data, config) {
     config = this.mergeConfig(config);
     data = this.data(data);
-    //var cfg = Utils.config2echartsOptions(this.mergeConfig(config));
-    //this.chart.setOption(cfg);
+    this.chart.setOption(Utils.config2echartsOptions(this.mergeConfig(config)));
     //更新图表
     //this.chart.render(data, cfg);
     //this.container.html(data[0].value)
@@ -85,13 +83,7 @@ module.exports = Event.extend(function Base(container, config) {
     this.chart.resize({
       width: width,
       height: height
-    })
-    //this.updateLayout(width, height);
-    //更新图表
-    //this.chart.render({
-    //  width: width,
-    //  height: height
-    //})
+    });
   },
   /**
    * 每个组件根据自身需要,从主题中获取颜色 覆盖到自身配置的颜色中.
@@ -126,12 +118,9 @@ module.exports = Event.extend(function Base(container, config) {
     if (config.series) {
       const obj = { 
         renderItem: function (params, api){
-          var lngExtent = [20.0, 46.9];
-          var latExtent = [122.0, 153.9];
-          var context = params.context;
-
           // get meshcode data
-          var meshcode = String(config.series[0].data[params.dataIndex].meshcode);
+          const meshcode = String(api.value(0));
+          console.log(meshcode);
 
           if (meshcode.length !== 8){
             return true;
@@ -162,7 +151,6 @@ module.exports = Event.extend(function Base(container, config) {
 
             var coords = params.context.coords || (params.context.coords = []);
             let key = latMesh[1]+latMesh[2] + '-' + lngMesh[1] + lngMesh[2];
-            //let key = latMesh[2] + "-" + lngMesh[2];
 
             const lat = (latMesh[0] / 1.5 * 3600 + latMesh[1] * 5 * 60 + latMesh[2] * 30 ) / 3600;
             const lng = ((lngMesh[0] + 100) * 3600 + lngMesh[1] * 7.5 * 60 + lngMesh[2] * 45) / 3600;
@@ -220,7 +208,11 @@ module.exports = Event.extend(function Base(container, config) {
         this.config.series[i] = obj; 
         
         if (this._data){
-          this.config.series[i].data = this._data;
+          const data = [];
+          this._data.forEach((d, i) => {
+            data.push([d.meshcode, d.value]);
+          });
+          this.config.series[i].data = data;
         }
 
         this.config.series[i] = _.defaultsDeep(d || {}, this.config.series[i]);
@@ -229,13 +221,12 @@ module.exports = Event.extend(function Base(container, config) {
       this.config.series = _.take(this.config.series, config.series.length)
     }
     if (config.bmap) {
-      this.config.bmap.center = [139.44, 35.39];
-      //var json = JSON.parse(JSON.stringify(config.bmap.mapStyle.styleJson));
+      this.config.bmap.center = [Number(config.bmap.latCenter), Number(config.bmap.lngCenter)];
       this.config.bmap.mapStyle = {};
     }
     if (config.visualMap) {
-      this.config.visualMap.inRange.color = ["#070093", "#1c3fbf", "#1482e5", "#70b4eb", "#b4e0f3", "#ffffff"];
-      this.config.visualMap.inRange.apacity = 0.7;
+
+      this.config.visualMap.inRange.color = _.map(config.visualMap.pieces, "color")
     }
 
     this.config.theme = _.defaultsDeep(config.theme || {}, this.config.theme);

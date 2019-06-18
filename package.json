@@ -1,5 +1,5 @@
 {
-  "name": "@namespace/meshmap",
+  "name": "@dsinnovation.jp/meshmap",
   "version": "0.0.1",
   "dependencies": {
     "bcore": "0.0.18",
@@ -16,7 +16,7 @@
       "regular"
     ],
     "view": {
-      "width": "1200",
+      "width": "1024",
       "height": "600",
       "minWidth": "400",
       "minHeight": "200"
@@ -27,10 +27,10 @@
         "description": "インタフェースの説明",
         "fields": {
           "meshcode": {
-            "description": "meshcode"
+            "description": "Third order meshcode"
           },
           "value": {
-            "description": "kind of tile"
+            "description": "Classification"
           }
         }
       }
@@ -76,48 +76,75 @@
             "type": "number",
             "default": 10
           },
+          "seriesIndex": {
+            "name": "seriesIndex",
+            "type": "number",
+            "default": 0
+          },
+          "inRange": {
+            "name": "inRange",
+            "type": "group",
+            "children": {
+              "opacity": {
+                "name": "opacity",
+                "type": "number",
+                "default": 0.7
+              }
+            }
+          },
           "pieces": {
             "name": "pieces",
             "type": "array",
             "default": [
               {
-                "value": 0,
+                "min": 0,
+                "max": 0,
                 "color": "#070093"
               },
               {
-                "value": 1,
+                "min": 1,
+                "max": 1,
                 "color": "#1c3fbf"
               },
               {
-                "value": 2,
+                "min": 2,
+                "max": 2,
                 "color": "#1482e5"
               },
               {
-                "value": 3,
+                "min": 3,
+                "max": 3,
                 "color": "#70b4eb"
               },
               {
-                "value": 4,
+                "min": 4,
+                "max": 4,
                 "color": "#b4e0f3"
               },
               {
-                "value": 5,
+                "min": 5,
+                "max": 5,
                 "color": "#ffffff"
               }
             ],
             "child": {
-              "name": "child",
+              "name": "piece<%= i %>",
               "type": "object",
               "child": {
-                "value": {
-                  "name": "value",
+                "min": {
+                  "name": "min",
                   "type": "number",
                   "default": 0
+                },
+                "max": {
+                  "name": "max",
+                  "type": "number",
+                  "default": 5
                 },
                 "color": {
                   "name": "color",
                   "type": "color",
-                  "default": "#ffffff"
+                  "default": "black"
                 }
               }
             }
@@ -136,11 +163,6 @@
             "name": "backgroundColor",
             "type": "color",
             "default": "#eee"
-          },
-          "dimension": {
-            "name": "dimension",
-            "type": "number",
-            "default": 2
           }
         }
       },
@@ -158,14 +180,12 @@
               }
             },
             "encode": {
-              "tooltip": {
-                "default": 2
-              }
+              "tooltip": 2
             }
           }
         ],
         "child": {
-          "name": "child",
+          "name": "series <%= i %>",
           "type": "object",
           "child": {
             "type": {
@@ -221,7 +241,17 @@
           "zoom": {
             "name": "zoom",
             "type": "number",
-            "default": 7
+            "default": 13
+          },
+          "latCenter": {
+            "name": "latCenter",
+            "type": "text",
+            "default": "139.77"
+          },
+          "lngCenter": {
+            "name": "lngCenter",
+            "type": "text",
+            "default": "35.66"
           },
           "roam": {
             "name": "roam",
@@ -420,6 +450,74 @@
         {
           "meshcode": 53394528,
           "value": 2
+        },
+        {
+          "meshcode": 53394529,
+          "value": 5
+        },
+        {
+          "meshcode": 53394538,
+          "value": 0
+        },
+        {
+          "meshcode": 53394539,
+          "value": 5
+        },
+        {
+          "meshcode": 53394549,
+          "value": 2
+        },
+        {
+          "meshcode": 53394600,
+          "value": 2
+        },
+        {
+          "meshcode": 53394601,
+          "value": 1
+        },
+        {
+          "meshcode": 53394610,
+          "value": 4
+        },
+        {
+          "meshcode": 53394611,
+          "value": 3
+        },
+        {
+          "meshcode": 53394620,
+          "value": 3
+        },
+        {
+          "meshcode": 53394621,
+          "value": 2
+        },
+        {
+          "meshcode": 53394622,
+          "value": 4
+        },
+        {
+          "meshcode": 53394630,
+          "value": 2
+        },
+        {
+          "meshcode": 53394631,
+          "value": 2
+        },
+        {
+          "meshcode": 53394632,
+          "value": 2
+        },
+        {
+          "meshcode": 53394640,
+          "value": 0
+        },
+        {
+          "meshcode": 53394641,
+          "value": 1
+        },
+        {
+          "meshcode": 53394642,
+          "value": 1
         }
       ]
     }
