@@ -3,8 +3,8 @@ var $ = require('jquery');
 var _ = require('lodash');
 var EChart = require('echarts');
 var Utils = require('datav:/com/maliang-echarts-utils/0.0.18');
-require('echarts/dist/extension/bmap');
-require('echarts/dist/extension/dataTool');
+require('./bmap');
+require('./dataTool');
 
 
 /**

@@ -1,6 +1,6 @@
 {
   "name": "@dsinnovation.jp/meshmap",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
     "bcore": "0.0.18",
     "jquery": "2.1.4",
