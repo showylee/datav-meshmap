@@ -6,7 +6,7 @@
     "jquery": "2.1.4",
     "lodash": "4.6.1",
     "echarts": "4.2.1",
-    "zrender": "3.4.4"
+    "zrender": "5.2.1"
   },
   "datav": {
     "cn_name": "meshmap",
